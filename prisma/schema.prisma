@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+  ADMIN
+  SUPERVISOR
+  MOTORISTA
+}
+
+enum Status {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  username  String   @unique
+  password  String
+  role      Role     @default(MOTORISTA)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  motoristasChecklists Checklist[] @relation("Motorista")
+  responsavelChecklists Checklist[] @relation("Responsavel")
+}
+
+
+model Checklist {
+  id            String   @id @default(uuid())
+  pedido        String
+  fotoUrl       String?
+  data          DateTime
+  hora          String
+  ajudante      String?
+  observacao    String?
+  status        Status   @default(PENDENTE)
+
+  motoristaId   String
+  responsavelId String?
+
+  motorista     User     @relation("Motorista", fields: [motoristaId], references: [id])
+  responsavel   User?    @relation("Responsavel", fields: [responsavelId], references: [id])
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
