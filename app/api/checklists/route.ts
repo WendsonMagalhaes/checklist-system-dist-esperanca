@@ -46,12 +46,12 @@ export async function POST(req: Request) {
         // cria checklist no banco
         const checklist = await prisma.checklist.create({
             data: {
-                pedido: { connect: { id: pedido } }, // conecta ao pedido
-                motorista: { connect: { id: session.user.id } }, // obrigatório
-                ajudante: ajudante ? { connect: { id: ajudante } } : undefined, // opcional
+                pedidoId: pedido, // passa direto o ID
+                motoristaId: session.user.id, // obrigatório
+                ajudanteId: ajudante || null, // opcional
                 observacao,
                 data: new Date(),
-                responsavel: undefined, // opcional, se necessário conecte igual ao ajudante
+                responsavelId: null, // opcional, se quiser conectar depois
             },
         });
 
