@@ -7,19 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//
+// ENUMS
+//
 
 enum Role {
   ADMIN
   SUPERVISOR
   MOTORISTA
+  AJUDANTE
 }
 
-enum Status {
+enum StatusPedido {
+  AGUARDANDO_CONFERENCIA
+  EM_CONFERENCIA
+  CONFERIDO
+  CARREGADO
+}
+
+enum StatusChecklist {
   PENDENTE
   APROVADO
   RECUSADO
 }
 
+//
+// USER
+//
 
 model User {
   id        String   @id @default(uuid())
@@ -31,27 +45,97 @@ model User {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  motoristasChecklists Checklist[] @relation("Motorista")
+  // Relações
+  motoristasChecklists  Checklist[] @relation("Motorista")
   responsavelChecklists Checklist[] @relation("Responsavel")
+  ajudanteChecklists    Checklist[] @relation("Ajudante")
+
+  logs Log[]
 }
 
+//
+// PEDIDO
+//
+
+model Pedido {
+  id        String        @id @default(uuid())
+  numero    String        @unique
+  cliente   String
+  status    StatusPedido  @default(AGUARDANDO_CONFERENCIA)
+
+  checklist Checklist?
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+//
+// CHECKLIST
+//
 
 model Checklist {
   id            String   @id @default(uuid())
-  pedido        String
-  fotoUrl       String?
+
+  pedidoId      String   @unique
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id])
+
   data          DateTime
-  hora          String
-  ajudante      String?
   observacao    String?
-  status        Status   @default(PENDENTE)
+  status        StatusChecklist @default(PENDENTE)
 
   motoristaId   String
   responsavelId String?
+  ajudanteId    String?
 
   motorista     User     @relation("Motorista", fields: [motoristaId], references: [id])
   responsavel   User?    @relation("Responsavel", fields: [responsavelId], references: [id])
+  ajudante      User?    @relation("Ajudante", fields: [ajudanteId], references: [id])
+
+  itens         ChecklistItem[]
+  fotos         FotoChecklist[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+//
+// ITENS DO CHECKLIST
+//
+
+model ChecklistItem {
+  id          String   @id @default(uuid())
+  checklistId String
+  checklist   Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  descricao   String
+  marcado     Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+}
+
+//
+// FOTOS DO CHECKLIST
+//
+
+model FotoChecklist {
+  id          String   @id @default(uuid())
+  checklistId String
+  checklist   Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  url         String
+  createdAt   DateTime @default(now())
+}
+
+//
+// LOG DE AUDITORIA
+//
+
+model Log {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  acao      String
+  pedidoId  String?
+  createdAt DateTime @default(now())
 }

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import Providers from "@/components/Providers";
+import Header from "@/components/Header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,20 +30,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-        >
-          {children}
+        <Providers>
+          <Header />
+          <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+            {children}
+          </main>
 
-          {/* Popups corporativos */}
-          <Toaster
-            position="top-right"
-            richColors
-            closeButton
-          />
-        </ThemeProvider>
+          <Toaster position="top-right" richColors closeButton />
+        </Providers>
       </body>
     </html>
   );
