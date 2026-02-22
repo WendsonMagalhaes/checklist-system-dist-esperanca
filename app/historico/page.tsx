@@ -6,7 +6,6 @@ import { Pencil } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 
 export default async function HistoricoPage() {
-    // Tipagem correta para incluir relações
     type ChecklistWithRelations = Prisma.ChecklistGetPayload<{
         include: {
             pedido: { select: { numero: true; cliente: true } };
@@ -30,7 +29,7 @@ export default async function HistoricoPage() {
                 Histórico de Checklists
             </h1>
 
-            <Card className="border-1 border-green-600 shadow-sm">
+            <Card className="border border-green-600 shadow-sm">
                 <CardHeader>
                     <CardTitle>Checklists Registrados</CardTitle>
                 </CardHeader>
@@ -39,37 +38,50 @@ export default async function HistoricoPage() {
                     {/* DESKTOP - TABELA */}
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-sm border-collapse">
-                            <thead className="bg-green-50 dark:bg-green-900/20">
+                            <thead className="bg-green-50 dark:bg-green-900/20 text-left">
                                 <tr>
-                                    <th>Pedido</th>
-                                    <th>Cliente</th>
-                                    <th>Motorista</th>
-                                    <th>Status</th>
-                                    <th>Data</th>
-                                    <th>Ações</th>
+                                    <th className="px-4 py-2 text-zinc-700 dark:text-zinc-300">Pedido</th>
+                                    <th className="px-4 py-2 text-zinc-700 dark:text-zinc-300">Cliente</th>
+                                    <th className="px-4 py-2 text-zinc-700 dark:text-zinc-300">Motorista</th>
+                                    <th className="px-4 py-2 text-zinc-700 dark:text-zinc-300">Status</th>
+                                    <th className="px-4 py-2 text-zinc-700 dark:text-zinc-300">Data</th>
+                                    <th className="px-4 py-2 text-zinc-700 dark:text-zinc-300 text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {checklists.map((c) => (
-                                    <tr key={c.id} className="border-b border-green-200 dark:border-green-700 hover:bg-green-50 dark:hover:bg-zinc-700/50 transition">
-                                        <td>
+                                    <tr
+                                        key={c.id}
+                                        className="border-b border-green-200 dark:border-green-700 hover:bg-green-50 dark:hover:bg-zinc-700/50 transition"
+                                    >
+                                        <td className="px-4 py-2 font-medium text-zinc-800 dark:text-white">
                                             <Link href={`/checklist/${c.id}`} className="text-green-700 hover:underline truncate">
                                                 {c.pedido?.numero ?? "-"}
                                             </Link>
                                         </td>
-                                        <td>{c.pedido?.cliente ?? "-"}</td>
-                                        <td>{c.motorista?.name ?? "-"}</td>
-                                        <td>
-                                            <span className={`text-xs px-2 py-1 rounded-full font-semibold
-                        ${c.status === "PENDENTE" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                                                    : c.status === "APROVADO" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                                        : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"}`}>
+                                        <td className="px-4 py-2 text-zinc-500 dark:text-zinc-400 truncate">{c.pedido?.cliente ?? "-"}</td>
+                                        <td className="px-4 py-2 text-zinc-500 dark:text-zinc-400">{c.motorista?.name ?? "-"}</td>
+                                        <td className="px-4 py-2">
+                                            <span
+                                                className={`text-xs px-2 py-1 rounded-full font-semibold ${c.status === "PENDENTE"
+                                                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                                                        : c.status === "APROVADO"
+                                                            ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                                            : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                                                    }`}
+                                            >
                                                 {c.status}
                                             </span>
                                         </td>
-                                        <td>{new Date(c.data).toLocaleDateString("pt-BR")}</td>
-                                        <td>
-                                            <Link href={`/checklist/${c.id}/edit`} className="text-green-600 hover:text-green-700">
+                                        <td className="px-4 py-2 text-zinc-500 dark:text-zinc-400">
+                                            {new Date(c.data).toLocaleDateString("pt-BR")}
+                                        </td>
+                                        <td className="px-4 py-2 text-right">
+                                            <Link
+                                                href={`/checklist/${c.id}/edit`}
+                                                className="text-green-600 hover:text-green-700 transition flex justify-end items-center"
+                                                title="Editar"
+                                            >
                                                 <Pencil size={18} />
                                             </Link>
                                         </td>
@@ -82,15 +94,25 @@ export default async function HistoricoPage() {
                     {/* MOBILE - CARDS */}
                     <div className="md:hidden flex flex-col gap-4">
                         {checklists.map((c) => (
-                            <div key={c.id} className="border-1 border-green-600 rounded-xl p-4 bg-white dark:bg-zinc-800 shadow-sm space-y-2">
+                            <div
+                                key={c.id}
+                                className="border border-green-600 rounded-xl p-4 bg-white dark:bg-zinc-800 shadow-sm space-y-2"
+                            >
                                 <div className="flex justify-between items-start flex-wrap gap-2">
-                                    <Link href={`/checklist/${c.id}`} className="font-semibold text-green-700 hover:underline truncate">
+                                    <Link
+                                        href={`/checklist/${c.id}`}
+                                        className="font-semibold text-green-700 hover:underline truncate"
+                                    >
                                         {c.pedido?.numero ?? "-"}
                                     </Link>
-                                    <span className={`text-xs px-2 py-1 rounded-full font-semibold
-                    ${c.status === "PENDENTE" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                                            : c.status === "APROVADO" ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                                : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"}`}>
+                                    <span
+                                        className={`text-xs px-2 py-1 rounded-full font-semibold ${c.status === "PENDENTE"
+                                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                                                : c.status === "APROVADO"
+                                                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                                    : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                                            }`}
+                                    >
                                         {c.status}
                                     </span>
                                 </div>
@@ -105,9 +127,12 @@ export default async function HistoricoPage() {
                                     {new Date(c.data).toLocaleDateString("pt-BR")}
                                 </div>
 
-                                <div className="pt-2">
+                                <div className="pt-2 flex justify-end">
                                     <Link href={`/checklist/${c.id}/edit`}>
-                                        <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 text-white">
+                                        <Button
+                                            size="sm"
+                                            className="bg-green-600 hover:bg-green-700 text-white"
+                                        >
                                             Editar
                                         </Button>
                                     </Link>
