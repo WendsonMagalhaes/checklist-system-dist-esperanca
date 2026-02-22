@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import ChecklistForm from "@/components/ChecklistForm";
 import { notFound } from "next/navigation";
 import { Role } from "@prisma/client";
+import { Checklist, FotoChecklist } from "@prisma/client";
 
 export default async function EditChecklistPage({
     params,
@@ -54,6 +55,7 @@ export default async function EditChecklistPage({
         },
     });
 
+
     const defaultValues = {
         id: checklist.id,
         numero: pedido?.numero || "",
@@ -61,7 +63,7 @@ export default async function EditChecklistPage({
         motoristaId: checklist.motoristaId || "",
         ajudanteId: checklist.ajudanteId || "",
         itens: checklist.itens || [],
-        fotos: checklist.fotos?.map((f) => f.url) || [],
+        fotos: checklist.fotos?.map((f: FotoChecklist) => f.url) || [],
     };
 
     return (

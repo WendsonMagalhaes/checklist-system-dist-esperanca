@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { StatusPedido } from "@prisma/client";
 import { Card } from "@/components/Card";
+import { Pedido } from "@prisma/client";
+
 
 export default async function DashboardPage() {
     const session = await auth();
@@ -44,11 +46,11 @@ export default async function DashboardPage() {
 
             {/* Cards */}
             <div className="grid gap-6 md:grid-cols-5">
-                <Card title="Total de Pedidos" value={totalPedidos} />
-                <Card title="Pendentes" value={pedidosPendentes} />
-                <Card title="Em Andamento" value={pedidosEmAndamento} />
-                <Card title="Conferidos" value={pedidosConferidos} />
-                <Card title="Finalizados" value={pedidosFinalizados} />
+                <Card title="Total de Pedidos" value={totalPedidos as number} />
+                <Card title="Pendentes" value={pedidosPendentes as number} />
+                <Card title="Em Andamento" value={pedidosEmAndamento as number} />
+                <Card title="Conferidos" value={pedidosConferidos as number} />
+                <Card title="Finalizados" value={pedidosFinalizados as number} />
             </div>
 
             {/* Últimos pedidos */}
@@ -58,7 +60,7 @@ export default async function DashboardPage() {
                 </h2>
 
                 <div className="space-y-3">
-                    {ultimosPedidos.map((pedido) => (
+                    {ultimosPedidos.map((pedido: Pedido) => (
                         <div
                             key={pedido.id}
                             className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-2"

@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ChecklistActions from "@/components/ChecklistActions";
+import { ChecklistItem } from "@prisma/client";
+import { FotoChecklist } from "@prisma/client";
+
 
 interface ChecklistPageProps {
     params: Promise<{ id: string }>;
@@ -33,10 +36,10 @@ export default async function ChecklistDetailPage({ params }: ChecklistPageProps
                     </h1>
                     <span
                         className={`text-sm px-3 py-1 rounded-full font-semibold ${checklist.status === "PENDENTE"
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                                : checklist.status === "APROVADO"
-                                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                                    : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                            : checklist.status === "APROVADO"
+                                ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
                             }`}
                     >
                         {checklist.status}
@@ -82,13 +85,14 @@ export default async function ChecklistDetailPage({ params }: ChecklistPageProps
                 <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
                     Itens ({checklist.itens.length})
                 </h2>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {checklist.itens.map((item) => (
+                    {checklist.itens.map((item: ChecklistItem) => (
                         <div
                             key={item.id}
                             className={`p-3 rounded-lg border ${item.marcado
-                                    ? "bg-green-50 border-green-400 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                    : "bg-zinc-50 border-zinc-200 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                                ? "bg-green-50 border-green-400 text-green-800 dark:bg-green-900 dark:text-green-300"
+                                : "bg-zinc-50 border-zinc-200 dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
                                 }`}
                         >
                             {item.descricao}
@@ -104,7 +108,7 @@ export default async function ChecklistDetailPage({ params }: ChecklistPageProps
                         Fotos ({checklist.fotos.length})
                     </h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {checklist.fotos.map((foto) => (
+                        {checklist.fotos.map((foto: FotoChecklist) => (
                             <img
                                 key={foto.id}
                                 src={foto.url}

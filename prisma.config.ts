@@ -1,18 +1,9 @@
-// prisma.config.ts
-import "dotenv/config";
-import { defineConfig } from "prisma/config";
+import { PrismaClient } from "@prisma/client";
 
-// Checa se a variável de ambiente está definida
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL não está definida! Configure nas Environment Variables.");
-}
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-export default defineConfig({
-  schema: "prisma/schema.prisma",
-  migrations: {
-    path: "prisma/migrations",
-  },
-  datasource: {
-    url: process.env.DATABASE_URL, // agora o TypeScript sabe que nunca é undefined
-  },
-});
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

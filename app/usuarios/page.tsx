@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Role } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ export default async function UsuariosPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {usuarios.map((user) => (
+                                {usuarios.map((user: User) => (
                                     <tr key={user.id} className="border-b border-green-200 dark:border-green-700 hover:bg-green-50 dark:hover:bg-zinc-700/50 transition">
                                         <td className="px-4 py-2 font-medium text-zinc-800 dark:text-white">
                                             <Link href={`/usuarios/${user.id}`} className="hover:underline text-green-700 truncate">
@@ -95,7 +95,7 @@ export default async function UsuariosPage() {
 
                     {/* MOBILE - CARDS */}
                     <div className="md:hidden flex flex-col gap-4">
-                        {usuarios.map((user) => (
+                        {usuarios.map((user: User) => (
                             <div key={user.id} className="border-1 border-green-600 rounded-xl p-4 bg-white dark:bg-zinc-800 shadow-sm space-y-2">
                                 <div className="flex justify-between items-start flex-wrap gap-2">
                                     <div>
