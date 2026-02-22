@@ -29,7 +29,7 @@ export async function POST(req: Request) {
 
         let fotoUrl: string | undefined;
 
-        // upload para Cloudinary se base64 existir
+        // Upload da foto para Cloudinary
         if (fotoFile) {
             try {
                 const uploadResponse = await cloudinary.uploader.upload(
@@ -43,27 +43,24 @@ export async function POST(req: Request) {
             }
         }
 
-        // cria checklist no banco
+        // Cria checklist no banco
         const checklist = await prisma.checklist.create({
             data: {
-                pedidoId: pedido, // passa direto o ID
-                motoristaId: session.user.id, // obrigatório
-                ajudanteId: ajudante || null, // opcional
+                pedido: { connect: { id: pedido } }, // conecta ao pedido
+                motorista: { connect: { id: session.user.id } }, // conecta ao motorista logado
+                ajudante: ajudante ? { connect: { id: ajudante } } : undefined, // opcional
                 observacao,
                 data: new Date(),
-                responsavelId: null, // opcional, se quiser conectar depois
+                responsavel: undefined, // opcional
+                fotos: fotoUrl ? { create: { url: fotoUrl } } : undefined, // cria a foto junto
+            },
+            include: {
+                pedido: true,
+                motorista: true,
+                ajudante: true,
+                fotos: true,
             },
         });
-
-        // se houver foto, cria registro em FotoChecklist
-        if (fotoUrl) {
-            await prisma.fotoChecklist.create({
-                data: {
-                    checklistId: checklist.id,
-                    url: fotoUrl,
-                },
-            });
-        }
 
         return NextResponse.json({ success: true, checklist });
     } catch (error) {
