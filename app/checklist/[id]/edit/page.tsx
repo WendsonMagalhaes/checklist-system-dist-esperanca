@@ -10,18 +10,16 @@ export default async function EditChecklistPage({
 }: {
     params: Promise<{ id: string }>;
 }) {
-
     // 🔥 DESENROLAR A PROMISE
     const { id } = await params;
 
+    // ✅ Busca checklist com relações válidas e dados do pedido via select
     const checklist = await prisma.checklist.findUnique({
-        where: {
-            id, // ✅ agora não é undefined
-        },
+        where: { id },
         include: {
-            pedido: true,
             motorista: true,
             ajudante: true,
+            responsavel: true,
             itens: true,
             fotos: true,
         },
@@ -29,11 +27,20 @@ export default async function EditChecklistPage({
 
     if (!checklist) return notFound();
 
+    // Busca o pedido separadamente para pegar numero e cliente
+    const pedido = await prisma.pedido.findUnique({
+        where: { id: checklist.pedidoId },
+        select: {
+            numero: true,
+            cliente: true,
+        },
+    });
+
     const motoristas = await prisma.user.findMany({
         where: {
             OR: [
                 { role: Role.MOTORISTA },
-                { id: checklist.motoristaId ?? undefined },
+                ...(checklist.motoristaId ? [{ id: checklist.motoristaId }] : []),
             ],
         },
     });
@@ -42,14 +49,15 @@ export default async function EditChecklistPage({
         where: {
             OR: [
                 { role: Role.AJUDANTE },
-                { id: checklist.ajudanteId ?? undefined },
+                ...(checklist.ajudanteId ? [{ id: checklist.ajudanteId }] : []),
             ],
         },
     });
+
     const defaultValues = {
         id: checklist.id,
-        numero: checklist.pedido?.numero || "",
-        cliente: checklist.pedido?.cliente || "",
+        numero: pedido?.numero || "",
+        cliente: pedido?.cliente || "",
         motoristaId: checklist.motoristaId || "",
         ajudanteId: checklist.ajudanteId || "",
         itens: checklist.itens || [],
@@ -59,7 +67,7 @@ export default async function EditChecklistPage({
     return (
         <div className="p-8 max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">
-                Editar Checklist: {checklist.pedido?.numero || checklist.id}
+                Editar Checklist: {pedido?.numero || checklist.id}
             </h1>
 
             <ChecklistForm
