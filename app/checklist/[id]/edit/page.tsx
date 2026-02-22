@@ -5,6 +5,8 @@ import ChecklistForm from "@/components/ChecklistForm";
 import { notFound } from "next/navigation";
 import { Role } from "@prisma/client";
 import { Checklist, FotoChecklist } from "@prisma/client";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default async function EditChecklistPage({
     params,
@@ -68,10 +70,20 @@ export default async function EditChecklistPage({
 
     return (
         <div className="p-8 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">
-                Editar Checklist: {pedido?.numero || checklist.id}
-            </h1>
 
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">
+                    Editar Checklist: {pedido?.numero || checklist.id}
+                </h1>
+
+                <Link
+                    href="/checklist"
+                    className="inline-flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-green-600 transition text-sm"
+                >
+                    <ArrowLeft size={18} />
+                    Voltar
+                </Link>
+            </div>
             <ChecklistForm
                 motoristas={motoristas}
                 ajudantes={ajudantes}

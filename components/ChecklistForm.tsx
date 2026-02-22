@@ -79,9 +79,11 @@ export default function ChecklistForm({
     const [previewFotos, setPreviewFotos] = useState<string[]>([]);
 
     // 🔥 CARREGAR DADOS PARA EDIÇÃO
+    // 🔥 CARREGAR DADOS PARA EDIÇÃO
     useEffect(() => {
         if (!defaultValues) return;
 
+        // ✅ Itens marcados
         if (defaultValues.itens) {
             const marcados = defaultValues.itens
                 .filter((item) => item.marcado)
@@ -89,7 +91,15 @@ export default function ChecklistForm({
 
             setItensMarcados(marcados);
         }
+
+        // ✅ Fotos existentes
+        if (defaultValues.fotos && defaultValues.fotos.length > 0) {
+            setPreviewFotos(defaultValues.fotos);
+            // Se quiser, você pode inicializar fotos como File[], mas geralmente para imagens já existentes, mantemos só o preview
+            // setFotos([]); // opcional
+        }
     }, [defaultValues]);
+
     function toggleItem(item: string) {
         setItensMarcados((prev) =>
             prev.includes(item)
@@ -124,13 +134,14 @@ export default function ChecklistForm({
 
         try {
             setLoading(true);
-
             const formData = new FormData();
-            formData.append("numero", numeroPedido);
-            formData.append("cliente", cliente);
             formData.append("motoristaId", motoristaId);
             formData.append("ajudanteId", ajudanteId);
+            formData.append("numero", numeroPedido);
+            formData.append("cliente", cliente);
 
+
+            // Adiciona os itens fixos com estado marcado
             ITENS_FIXOS.forEach((item) => {
                 formData.append(
                     "itens",
@@ -141,27 +152,30 @@ export default function ChecklistForm({
                 );
             });
 
+            // Adiciona novas fotos (File)
             fotos.forEach((foto) => formData.append("fotos", foto));
+
+            // Adiciona URLs das fotos que devem permanecer
+            previewFotos.forEach((url) =>
+                formData.append("fotosExistentes", url)
+            );
 
             const url = isEdit
                 ? `/api/checklists/${defaultValues?.id}`
                 : "/api/checklists";
-
             const method = isEdit ? "PUT" : "POST";
 
-            const res = await fetch(url, {
-                method,
-                body: formData,
-            });
+            const res = await fetch(url, { method, body: formData });
 
-            if (res.ok) {
-                router.push("/dashboard");
-            }
+            if (!res.ok) throw new Error("Erro ao salvar checklist");
+
+            router.push("/checklist");
+        } catch (err) {
+            console.error(err);
         } finally {
             setLoading(false);
         }
     }
-
     return (
         <>
             <LoadingOverlay

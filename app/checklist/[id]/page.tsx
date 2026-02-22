@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import ChecklistActions from "@/components/ChecklistActions";
 import { ChecklistItem } from "@prisma/client";
 import { FotoChecklist } from "@prisma/client";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 
 interface ChecklistPageProps {
@@ -29,11 +31,22 @@ export default async function ChecklistDetailPage({ params }: ChecklistPageProps
     return (
         <div className="p-6 max-w-5xl mx-auto space-y-6">
             {/* Header */}
+            {/* Voltar à direita */}
+            <div className="flex justify-end">
+                <Link
+                    href="/checklist"
+                    className="inline-flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-green-600 transition text-sm"
+                >
+                    <ArrowLeft size={18} />
+                    Voltar
+                </Link>
+            </div>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white truncate">
                         Checklist: {checklist.pedido?.numero || checklist.id}
                     </h1>
+
                     <span
                         className={`text-sm px-3 py-1 rounded-full font-semibold ${checklist.status === "PENDENTE"
                             ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
@@ -48,6 +61,7 @@ export default async function ChecklistDetailPage({ params }: ChecklistPageProps
 
                 {/* Botões Editar/Excluir */}
                 <ChecklistActions checklistId={checklist.id} />
+
             </div>
 
             {/* Informações */}

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Pencil, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation"; // ✅ App Router
+import { toast } from "sonner";
 
 interface Props {
     checklistId: string;
@@ -11,20 +13,25 @@ interface Props {
 export default function ChecklistCardActions({ checklistId }: Props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const router = useRouter(); // ✅ hook
 
     const handleDelete = async () => {
         setLoading(true);
-        const res = await fetch(`/api/checklist/${checklistId}`, {
-            method: "DELETE",
-        });
+        try {
+            const res = await fetch(`/api/checklists/${checklistId}`, {
+                method: "DELETE",
+            });
 
-        if (res.ok) {
-            window.location.reload(); // Atualiza a lista
-        } else {
-            alert("Erro ao excluir checklist."); // pode trocar por toast depois
+            if (!res.ok) throw new Error("Erro ao excluir checklist.");
+
+            toast.success("Checklist excluído com sucesso!");
+            router.push("/checklist");
+        } catch (err: any) {
+            toast.error(err.message || "Erro ao excluir checklist.");
+        } finally {
+            setLoading(false);
+            setIsModalOpen(false);
         }
-        setLoading(false);
-        setIsModalOpen(false);
     };
 
     return (
@@ -42,7 +49,7 @@ export default function ChecklistCardActions({ checklistId }: Props) {
                 {/* Excluir */}
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="text-red-400 hover:text-red-500 transition" // vermelho pastel
+                    className="text-red-400 hover:text-red-500 transition"
                     title="Excluir"
                 >
                     <Trash2 size={18} />
@@ -53,7 +60,6 @@ export default function ChecklistCardActions({ checklistId }: Props) {
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
                     <div className="bg-white dark:bg-zinc-800 rounded-xl p-6 w-80 relative shadow-lg">
-                        {/* Fechar */}
                         <button
                             onClick={() => setIsModalOpen(false)}
                             className="absolute top-3 right-3 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition"
