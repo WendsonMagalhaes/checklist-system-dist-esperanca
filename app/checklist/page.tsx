@@ -1,10 +1,21 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Checklist } from "@prisma/client";
 import ChecklistCardActions from "@/components/ChecklistCardActions";
+import { Checklist } from "@prisma/client";
+
+// Define o tipo combinando Checklist + relações
+type ChecklistWithRelations = Checklist & {
+    pedido: { id: string; numero: string };
+    motorista: { id: string; name: string };
+    responsavel?: { id: string; name: string } | null;
+    ajudante?: { id: string; name: string } | null;
+    itens: { id: string; descricao: string; marcado: boolean }[];
+    fotos: { id: string; url: string }[];
+};
 
 export default async function ChecklistPage() {
-    const checklists: Checklist[] = await prisma.checklist.findMany({
+    // Prisma já infere corretamente o tipo ao usar include, mas definimos tipo explícito
+    const checklists: ChecklistWithRelations[] = await prisma.checklist.findMany({
         orderBy: { createdAt: "desc" },
         take: 20,
         include: {

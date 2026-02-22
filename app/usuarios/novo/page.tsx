@@ -99,9 +99,10 @@ export default async function NovoUsuarioPage() {
                                 <SelectValue placeholder="Selecione" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={Role.ADMIN}>ADMIN</SelectItem>
-                                <SelectItem value={Role.SUPERVISOR}>SUPERVISOR</SelectItem>
-                                <SelectItem value={Role.USER}>USER</SelectItem>
+                                <SelectItem value={Role.ADMIN}>Administrador</SelectItem>
+                                <SelectItem value={Role.SUPERVISOR}>Supervisor</SelectItem>
+                                <SelectItem value={Role.MOTORISTA}>Motorista</SelectItem>
+                                <SelectItem value={Role.AJUDANTE}>Ajudante</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

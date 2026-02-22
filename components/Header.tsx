@@ -5,19 +5,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
-import {
-    Sun,
-    Moon,
-    Menu,
-    X,
-    User,
-    LogOut,
-} from "lucide-react";
+import { Sun, Moon, Menu, X, User, LogOut } from "lucide-react";
+
+// Tipagem customizada para session.user
+interface UserSession {
+    id: string;
+    role: "ADMIN" | "SUPERVISOR" | "MOTORISTA" | "AJUDANTE";
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+}
+
+interface CustomSession {
+    user: UserSession;
+}
 
 export default function Header() {
     const pathname = usePathname();
     const { theme, setTheme } = useTheme();
-    const { data: session } = useSession();
+    const { data: session } = useSession() as { data: CustomSession | null };
 
     const [mobileOpen, setMobileOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -62,13 +68,12 @@ export default function Header() {
                         {/* 🔒 Apenas Admin ou Supervisor */}
                         {(session?.user?.role === "ADMIN" || session?.user?.role === "SUPERVISOR") && (
                             <NavLink href="/usuarios" label="Usuários" />
-                        )}                    </nav>
+                        )}
+                    </nav>
 
                     {/* Dark Mode */}
                     <button
-                        onClick={() =>
-                            setTheme(theme === "dark" ? "light" : "dark")
-                        }
+                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                         className="text-zinc-500 dark:text-zinc-400 hover:text-green-600 transition-colors duration-200"
                     >
                         {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
@@ -105,9 +110,7 @@ export default function Header() {
                                 </Link>
 
                                 <button
-                                    onClick={() =>
-                                        signOut({ callbackUrl: "/login" })
-                                    }
+                                    onClick={() => signOut({ callbackUrl: "/login" })}
                                     className="w-full text-left px-4 py-2 text-sm
                            text-zinc-600 dark:text-zinc-300
                            hover:text-green-600
@@ -142,9 +145,9 @@ export default function Header() {
                     {/* 🔒 Apenas Admin ou Supervisor */}
                     {(session?.user?.role === "ADMIN" || session?.user?.role === "SUPERVISOR") && (
                         <NavLink href="/usuarios" label="Usuários" />
-                    )}                </div>
+                    )}
+                </div>
             )}
         </header>
     );
-
 }

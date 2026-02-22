@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
 import { auth } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Pedido é obrigatório" }, { status: 400 });
         }
 
-        let fotoUrl = "";
+        let fotoUrl: string | undefined;
 
         // upload para Cloudinary se base64 existir
         if (fotoFile) {
@@ -47,15 +46,24 @@ export async function POST(req: Request) {
         // cria checklist no banco
         const checklist = await prisma.checklist.create({
             data: {
-                pedido,
-                fotoUrl,
-                ajudante,
+                pedido: { connect: { id: pedido } }, // conecta ao pedido
+                motorista: { connect: { id: session.user.id } }, // obrigatório
+                ajudante: ajudante ? { connect: { id: ajudante } } : undefined, // opcional
                 observacao,
-                hora: new Date().toLocaleTimeString("pt-BR", { hour12: false }),
                 data: new Date(),
-                motoristaId: session.user.id,
+                responsavel: undefined, // opcional, se necessário conecte igual ao ajudante
             },
         });
+
+        // se houver foto, cria registro em FotoChecklist
+        if (fotoUrl) {
+            await prisma.fotoChecklist.create({
+                data: {
+                    checklistId: checklist.id,
+                    url: fotoUrl,
+                },
+            });
+        }
 
         return NextResponse.json({ success: true, checklist });
     } catch (error) {
